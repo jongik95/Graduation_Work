@@ -6,21 +6,20 @@ def convert_to_HSV(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     return hsv
 
+#Hue(색상) Saturation(채도) Value(진하기)
+#전기테이프 파란색으로 잘 못 구매,,,
 def detect_edges(hsv):
-    lower_blue = np.array([90, 120, 0], dtype = "uint8") # lower limit of blue color
-    upper_blue = np.array([150, 255, 255], dtype="uint8") # upper limit of blue color
-    mask = cv2.inRange(hsv,lower_blue,upper_blue) # this mask will filter out everything but blue
+    lower_blue = np.array([90, 120, 0], dtype = "uint8") # 파란색 HSV 최저  
+    upper_blue = np.array([150, 255, 255], dtype="uint8") # 파란색 HSV 최고
+    mask = cv2.inRange(hsv,lower_blue,upper_blue) # 파란색 영역 마스크
 
-    # detect edges
     edges = cv2.Canny(mask, 50, 100)
     return edges
-
+#관심영역 
 def region_of_interest(edges):
-    height, width = edges.shape # extract the height and width of the edges frame
-    mask = np.zeros_like(edges) # make an empty matrix with same dimensions of the edges frame
+    height, width = edges.shape # 높이 너비
+    mask = np.zeros_like(edges) # edges 와 같은 크기 empty 프레임
 
-    # only focus lower half of the screen
-    # specify the coordinates of 4 points (lower left, upper left, upper right, lower right)
     polygon = np.array([[
         (0, height), 
         (0,  height/2),
@@ -28,7 +27,7 @@ def region_of_interest(edges):
         (width , height),
     ]], np.int32)
 
-    cv2.fillPoly(mask, polygon, 255) # fill the polygon with blue color 
+    cv2.fillPoly(mask, polygon, 255) # 관심영역 파란색 채우기
     cropped_edges = cv2.bitwise_and(edges, mask)
     return cropped_edges
 
